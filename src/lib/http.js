@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getCookie } from "@/lib/utils";
-
+console.log(process.env.NEXT_PUBLIC_BASE_URL)
 const http = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BASE_URL,
 });
