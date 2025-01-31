@@ -1,29 +1,30 @@
+import { getBanks } from '@/lib/api';
 import { Input } from '@nextui-org/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-const RecipientBank = ({goNext}) => {
+const RecipientBank = ({goNext,setBank}) => {
  const [searchTerm, setSearchTerm] = useState(''); // State for search input
-  const [banks] = useState([
-    'Access Bank',
-    'GTBank',
-    'First Bank',
-    'UBA',
-    'Zenith Bank',
-    'Stanbic IBTC',
-    'Fidelity Bank',
-    'Ecobank',
-    'Union Bank',
-    'Polaris Bank',
-  ]); // List of banks
+  const [banks, setBanks] = useState([]); // List of banks
 
   // Filter banks based on the search term
-  const filteredBanks = banks.filter((bank) =>
-    bank.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredBanks = banks?.filter((bank) =>
+    bank?.name.toLowerCase().includes(searchTerm?.toLowerCase())
   );
 
-  const selectBank=()=>{
+  const selectBank=(bank)=>{
+  setBank(bank)
   goNext()
   }
+
+  
+  useEffect(() => {
+    async function fetchData() {
+      const result = await getBanks();
+      console.log(result.data.data);
+      setBanks(result.data.data);
+    }
+    fetchData();
+  }, []);
 
   return (
    <div className="min-h-screen flex flex-col p-8 bg-white">
@@ -43,15 +44,15 @@ const RecipientBank = ({goNext}) => {
         />
 
         {/* List of Banks */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 h-[40rem] overflow-hidden overflow-y-auto">
           {filteredBanks.length > 0 ? (
             filteredBanks.map((bank, index) => (
               <div
                 key={index}
                 className="border p-4 rounded-lg hover:bg-gray-100 cursor-pointer"
-                onClick={selectBank}
+                onClick={()=>selectBank(bank)}
               >
-              <p className='text-lg'>{bank}</p>
+              <p className='text-lg'>{bank.name}</p>
               </div>
             ))
           ) : (

@@ -35,6 +35,8 @@ const stepVariants = {
 const Transfer = () => {
  const swiperRef = useRef(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [bank, setBank] = useState({})
+  const [accountDetails, setAccountDetails] = useState(null)
   const [state, setState] = useState("");
   const [to, from] = useTransaction(
     useShallow((state) => [state.data.to, state.data.from])
@@ -56,9 +58,9 @@ const Transfer = () => {
     const SwiperSteps = [
     { id: 0, content: <TransferAmount from={from}to={to} state={state} setState={setState} goNext={goNext}/> },
     { id: 1, content: <DeliveryMethod goNext={goNext}/>},
-    { id: 2, content: <RecipientBank goNext={goNext}/> },
-    { id: 3, content: <RecipientAccountDetails goNext={goNext}/> },
-    { id: 4, content: <RecipientInformation goNext={goNext}/> },
+    { id: 2, content: <RecipientBank setBank={setBank} goNext={goNext}/> },
+    { id: 3, content: <RecipientAccountDetails setAccountDetails={setAccountDetails} bank={bank} goNext={goNext}/> },
+    { id: 4, content: <RecipientInformation accountDetails={accountDetails} goNext={goNext}/> },
     { id: 5, content: <RecipientNotification goNext={goNext}/> },
     { id: 6, content: <SenderReason goNext={goNext}/> },
     { id: 7, content: <SenderInformation goNext={goNext}/> },

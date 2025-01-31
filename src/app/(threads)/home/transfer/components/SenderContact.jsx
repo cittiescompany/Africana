@@ -25,14 +25,14 @@ goNext()
       
          <div className='flex items-center gap-4 px-4 my-6'>
            <BsPhoneFill size={25} />
-           <p className='text-sm'>TBy providing your number, you agree that we may contact you via call or text in regards to your Remitly account or transfer.</p>
+           <p className='text-sm'>By providing your number, you agree that we may contact you via call or text in regards to your Africana account or transfer.</p>
            </div>
 
      <Button onClick={ContinueToNext} color='primary' className='mt-8 w-full rounded-md text-medium'>Continue</Button>
 
         <div className='flex items-center gap-4 px-4 my-6'>
           <MdLock size={25} />
-          <p className='text-sm'>This information helps prevent fraud and makes Remitly safer. We keep it secure and confidential.</p>
+          <p className='text-sm'>This information helps prevent fraud and makes Africana safer. We keep it secure and confidential.</p>
           </div>
       </div>
     </div>
