@@ -1,3 +1,4 @@
+import { useDataStore } from "@/store/Global";
 import {
   Button,
   Modal,
@@ -9,7 +10,10 @@ import {
 import Image from "next/image";
 import React from "react";
 
-const ConfirmModal = ({ onOpenChange, isOpen, goNext, onClose }) => {
+const ConfirmModal = ({ onOpenChange, isOpen, goNext, onClose,user }) => {
+  const {data}=useDataStore()
+  console.log(data);
+  
   const confirm = () => {
     onClose();
     goNext();
@@ -32,8 +36,8 @@ const ConfirmModal = ({ onOpenChange, isOpen, goNext, onClose }) => {
           </p>
 
           <div className="text-lg font-semibold">
-            <p>Olakunle adebanmiji</p>
-            <p>03/09/1995</p>
+            <p>{data?.senderDetails?.firstName} {data?.senderDetails?.lastName}</p>
+            <p>{data?.senderDetails?.dob}</p>
           </div>
         </ModalBody>
         <ModalFooter className="flex flex-col gap-4">

@@ -33,15 +33,15 @@ export default function Nav() {
   const menuItems = [
       {
         name:"Send Money",
-        href:"/send-money"
+        href:"/home/send-money"
       },
       {
-        name:"Transfer History",
-        href:"/send-money"
+        name:"Payment Hub(USD)",
+        href:"payment-hub"
       },
       {
         name:"Invest",
-        href:"/send-money"
+        href:"/home/invest"
       },
   ];
 
@@ -78,7 +78,7 @@ export default function Nav() {
 
       <NavbarContent justify="end">
         <NavbarItem className=" lg:flex">
-         <b>Hi {user?.name}</b>
+         <b>Hi {user?.firstName} {user?.lastName}</b>
         </NavbarItem>
        
       </NavbarContent>

@@ -4,6 +4,7 @@ import { NextUIProvider } from "@nextui-org/react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ThemeProvider } from "next-themes";
 import { ToastProvider } from "@/hooks/use-toast";
+import './font.css'
 
 const queryClient = new QueryClient({
     defaultOptions: {

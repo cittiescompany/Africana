@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   Button,
@@ -8,11 +8,12 @@ import {
   PopoverTrigger,
 } from "@nextui-org/react";
 import CountryFlag from "@/components/ui/CountryFlag";
-import useTransaction from "@/store/Global";
+import useTransaction, { useDataStore } from "@/store/Global";
 import countries from "@/lib/countries";
 import { useShallow } from "zustand/react/shallow";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const countriesData = countries;
 const data = [
@@ -36,11 +37,58 @@ const data = [
   },
 ];
 const page = () => {
+  const {data:storeData,updateData:updateStoreData}=useDataStore()
   const router = useRouter();
   const [to, from] = useTransaction(
     useShallow((state) => [state.data.to, state.data.from])
   );
-  return (
+
+    
+   useEffect(() => {
+      const getData=async()=>{
+        // const result = await fetchConvertedAmount(1);
+        const result = await handleCalculate(1);
+        updateStoreData({exchangeRate:result});
+      }
+
+      getData()
+    }, []);
+
+    // const fetchConvertedAmount = async (num) => {
+    //   if (!num) return;
+  
+    //   try {
+    //     const response = await fetch(
+    //       `/api/convert?amount=${num}&from=${countries[from]?.currencyCode}&to=${countries[to]?.currencyCode}`
+    //     );
+    //     const data = await response.json();
+        
+        
+    //     return data?.convertedAmount;
+    //     // setConvertedAmount(data.convertedAmount?.toFixed(2) || "Error");
+    //   } catch (error) {
+    //     console.error("Conversion Error:", error);
+    //   }
+    // };
+  
+    const handleCalculate = async (amount) => {
+      try {
+        const response = await axios.get("https://dashboard-backend-hazel-five.vercel.app/api/get-rate", {
+          params: { fromCountryCode: countries[from]?.code, toCountryCode: countries[to]?.code },
+        });
+        
+        if (response.data) {
+          const exchangeRate = response.data.rate;
+          const calculatedAmount = parseFloat(amount) * exchangeRate;
+          return calculatedAmount.toFixed(2);
+        } else {
+          console.log("Exchange rate not found");
+        }
+      } catch (error) {
+        console.log("Error fetching exchange rate");
+      }
+    };
+    return (
     <>
       <div className="bg-blue-900 py-3 text-center text-lg text-white">
         <Button disabled className="bg-inherit bordered text-white">
@@ -81,14 +129,13 @@ const page = () => {
               <div className="flex items-center justify-between">
                 <p className="">Sending to {countries[to]?.name}</p>
                 <p className="border rounded-lg">
-                  <SelectCountries indacator="to" />
+                  <SelectCountries  indacator="to" />
                 </p>
               </div>
               <div>
                 <div className="opacity-55">Exchange Rate</div>
                 <div className="font-bold font-Inter mt-2">
-                  1{countries[from]?.currencyCode} = 1
-                  {countries[to]?.currencyCode}{" "}
+                {formatCurrency(countries[from]?.currencyCode,1)} = {formatCurrency(countries[to]?.currencyCode,storeData?.exchangeRate)}
                 </div>
                 <button
                   onClick={() => router.push("/home/transfer")}
@@ -112,6 +159,7 @@ const SelectCountries = ({ indacator }) => {
     useShallow((state) => [state.data.to, state.data.from, state.updateData])
   );
   const data = indacator === "from" ? from : to;
+
 
   return (
     <Popover

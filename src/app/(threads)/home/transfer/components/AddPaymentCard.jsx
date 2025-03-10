@@ -1,8 +1,11 @@
+import { useDataStore } from "@/store/Global";
 import Image from "next/image";
 import React from "react";
 
 const AddPaymentCard = ({goNext}) => {
+  const {updateData}=useDataStore()
   const addCard=()=>{
+    updateData({'payment_method':'card'})
   goNext()
   }
 

@@ -1,7 +1,9 @@
 import React, {useState} from "react";
 import { Button, Input } from "@nextui-org/react";
+import { useDataStore } from "@/store/Global";
 
-const RecipientInformation = ({ goNext, accountDetails }) => {
+const RecipientInformation = ({ goNext,editMode }) => {
+   const {data}=useDataStore()
   const [isAccountNameMatched, setIsAccountNameMatched] = useState({
     message: "",
     status: false,
@@ -13,11 +15,11 @@ const RecipientInformation = ({ goNext, accountDetails }) => {
   });
 
 const ContinueToNext = () => {
-  console.log("accountDetails:", accountDetails);
+  console.log("accountDetails:", data.recipient_accountDetails);
   console.log("user:", user);
 
   // Split the account name into an array of individual names
-  const accountNameParts = accountDetails?.account_name?.toLowerCase().split(" ") || [];
+  const accountNameParts = data.recipient_accountDetails?.account_name?.toLowerCase().split(" ") || [];
   const firstName = user?.firstName?.toLowerCase();
   const lastName = user?.lastName?.toLowerCase();
 
@@ -37,7 +39,8 @@ const ContinueToNext = () => {
 };
 
   return (
-    <div className="min-h-screen flex flex-col p-8 bg-white">
+    <div className={`${!editMode&&'min-h-screen'} flex flex-col p-8 bg-white`}>
+      {!editMode &&
       <div className="mb-4">
         <h1 className="text-2xl font-bold mb-2">Recipient Name</h1>
         <p>
@@ -45,6 +48,7 @@ const ContinueToNext = () => {
           account
         </p>
       </div>
+      }
       <div className="w-full flex flex-col gap-6">
         <div>
           <label htmlFor="" className="mb-4 ms-2 text-lg">
@@ -104,13 +108,16 @@ const ContinueToNext = () => {
         >
           {isAccountNameMatched?.message}
         </p>
+        {!editMode
+        &&
         <Button
-          onClick={ContinueToNext}
+          onPress={ContinueToNext}
           color="primary"
           className="mt-8 w-full rounded-md text-medium"
         >
           Continue
         </Button>
+        }
       </div>
     </div>
   );

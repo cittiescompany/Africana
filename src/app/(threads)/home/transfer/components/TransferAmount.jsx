@@ -1,35 +1,165 @@
-import React from 'react'
-import { Button, Progress, Input } from "@nextui-org/react";
+'use client'
+import React,{useState,useEffect} from 'react'
+import { Button, Progress, Input, Popover, PopoverTrigger, PopoverContent, Select, SelectItem } from "@nextui-org/react";
 import countries from "@/lib/countries";
 import CountryFlag from "@/components/ui/CountryFlag";
+import CurrencyConverter from './CurrencyConverter'
+import { cn, formatCurrency } from '@/lib/utils';
+import useTransaction, { useDataStore } from '@/store/Global';
+import { useShallow } from 'zustand/react/shallow';
+import axios from 'axios';
 
 
-const TransferAmount = ({from,to,state,setState,goNext}) => {
+const TransferAmount = ({goNext,editMode}) => {
+  const {data,updateData}=useDataStore()
+  const [to, from] = useTransaction(
+    useShallow((state) => [state.data.to, state.data.from])
+  );
+  const [selectedMethod, setselectedMethod] = useState('auto')
+  const [exchangeRate, setExchangeRate] = useState('')
+  
+  
+    useEffect(() => {
+      const getData=async()=>{
+        if (data.amount) {
+          // const result = await fetchConvertedAmount(data.amount);
+          const result = await handleCalculate(data.amount);
+          updateData({convertedAmount:result});
+        }
+      }
+
+      getData()
+    }, [data.amount, from, to]);
+
+
+    useEffect(() => {
+      updateData({from:countries[from]?.currencyCode,to:countries[to]?.currencyCode});
+    }, [ from, to])
+    
+
+
+    useEffect(() => {
+      const getData=async()=>{
+        // const result = await fetchConvertedAmount(1);
+        const result = await handleCalculate(1);
+        updateData({exchangeRate:result});
+      }
+
+      getData()
+    }, [from, to]);
+  
+    const fetchConvertedAmount = async (num) => {
+      if (!num) return;
+      if (selectedMethod=='mannual') {
+        const convertedAmount=exchangeRate*num
+        return convertedAmount
+      }else{
+        try {
+          const response = await fetch(
+            `/api/convert?amount=${num}&from=${countries[from]?.currencyCode}&to=${countries[to]?.currencyCode}`
+          );
+          const data = await response.json();
+          
+          
+          return data?.convertedAmount;
+          // setConvertedAmount(data.convertedAmount?.toFixed(2) || "Error");
+        } catch (error) {
+          console.error("Conversion Error:", error);
+        }
+      }
+  
+    };
+
+    // const fetchExchangeRate = async (num) => {
+    //   if (!num) return;
+  
+    //   try {
+    //     const response = await fetch(
+    //       `/api/convert?amount=${num}&from=${countries[from]?.currencyCode}&to=${countries[to]?.currencyCode}`
+    //     );
+    //     const data = await response.json();
+        
+    //     return data?.convertedAmount;
+    //   } catch (error) {
+    //     console.error("Conversion Error:", error);
+    //   }
+    // };
+
 const continuePayment=()=>{
 goNext()
 }
+
+const handleSelect = (e)=>{
+  setselectedMethod(e.currentKey)
+}
+
+const handleCalculate = async (amount) => {
+  console.log('from:',countries[from],'to:',countries[to])
+  try {
+    const response = await axios.get("https://dashboard-backend-hazel-five.vercel.app/api/get-rate", {
+      params: { fromCountryCode: countries[from]?.code, toCountryCode: countries[to]?.code },
+    });
+    console.log("response:",response);
+    
+    if (response.data) {
+      const exchangeRate = response.data.rate;
+      const calculatedAmount = parseFloat(amount) * exchangeRate;
+      return calculatedAmount.toFixed(2);
+    } else {
+      console.log("Exchange rate not found");
+    }
+  } catch (error) {
+    console.log("Error fetching exchange rate");
+  }
+};
+
   return (
       <div>
+        {/* <CurrencyConverter /> */}
       <div className="bg-gray-300 my-4 p-6">
+      {/* <div className='mb-2'>
+      <label htmlFor="" className='mb-4'>Select Exchange Method</label>
+         <Select onSelectionChange={(e)=>handleSelect(e)}>
+        <SelectItem key='auto' value='auto'>
+          Automatic
+        </SelectItem>
+        <SelectItem key='mannual' value='mannual'>
+          Mannual
+        </SelectItem>
+    </Select>
+
+    {selectedMethod==='mannual' && <div  className='my-4'>
+      <label htmlFor="" className='mb-4'>Exchange rate</label>
+     <Input
+          size='lg'
+            type="number"
+            placeholder='Enter the exchange rate'
+            value={exchangeRate}
+            onChange={(e) => setExchangeRate(e.target.value)}
+          />
+    </div> 
+        }
+    </div> */}
         <div>
           <strong className="font-light">You send</strong>
           <div className="flex items-center  bg-white border p-2">
-            <Button disabled className="bg-inherit">
-              <CountryFlag
+            <p className="bg-inherit">
+              {/* <CountryFlag
                 rounded
                 code={countries[from]?.code}
                 className=" rounded-md w-10 h-7"
-              />
-            </Button>
+              /> */}
+              <SelectCountries  indacator="from" />
+            </p>
             <Input
               clearable
               bordered={false}
               className="!outline-none !text-xl !rounded-none bg-inherit"
               fullWidth
               type="number"
-              value={state}
               onWheel={(e) => e.target.blur()}
-              onChange={(e) => setState(e.target.value)}
+              value={data.amount}
+        onChange={(e) => updateData({amount:e.target.value})}
               placeholder="Enter amount"
               css={{
                 "& input": {
@@ -57,9 +187,9 @@ goNext()
               className="!outline-none !text-xl !rounded-none bg-inherit"
               fullWidth
               type="number"
+              readOnly
               onWheel={(e) => e.target.blur()}
-              value={state}
-              onChange={(e) => setState(e.target.value)}
+              value={data.convertedAmount}
               placeholder="Enter amount"
               css={{
                 "& input": {
@@ -74,7 +204,8 @@ goNext()
       <div className="bg-white p-6  my-3 rounded-sm">
         <p className="text-lg">Current exchange rate</p>
         <strong className=" text-green-500">
-          {countries[from]?.currencyCode} 1 = 1{countries[to]?.currencyCode}{" "}
+          {/* {countries[from]?.currencyCode} 1 = {fetchExchangeRate(1)} {countries[to]?.currencyCode}{" "} */}
+          {formatCurrency(countries[from]?.currencyCode,1)} = {formatCurrency(countries[to]?.currencyCode,data.exchangeRate)}
         </strong>
       </div>
       <hr className="border-2 w-[98%] block mx-auto" />
@@ -84,11 +215,13 @@ goNext()
           <span>000</span>
         </span>
         <hr className="border" />
-        <span className="flex text-lg py-2 justify-between">
+        <div className="flex text-lg py-2 justify-between">
           <span>Total</span>
-          <span>100</span>
-        </span>
+          <span>{formatCurrency(countries[from]?.currencyCode,data.amount||0)}</span>
+        </div>
       </button>
+{!editMode&&
+      <div>
       <Button 
         onClick={continuePayment}
         size="md"
@@ -102,8 +235,66 @@ goNext()
         promotional exchange rate for the first 500 USD of this transfer.
         Standard rate applies to the remainder of this transfer.
       </p>
+      </div>
+}
     </div>
   )
 }
 
 export default TransferAmount
+
+
+const SelectCountries = ({ indacator }) => {
+  const [open, setOpen] = useState(false);
+  const [to, from, updateData] = useTransaction(
+    useShallow((state) => [state.data.to, state.data.from, state.updateData])
+  );
+  const data = indacator === "from" ? from : to;
+
+  return (
+    <Popover
+      isOpen={open}
+      onOpenChange={setOpen}
+      placement="bottom-end"
+      showArrow={true}
+    >
+      <PopoverTrigger>
+        <Button className="bg-inherit bordered">
+          <CountryFlag
+            rounded
+            code={countries[data]?.code}
+            className=" rounded-md w-10 h-7"
+          />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="sm:max-w-[500px] md:max-w-[600px] lg:max-w-[700px]">
+        <div className="px-4 py-2 w-[200px] gap-4 grid grid-cols-1 overflow-y-scroll  custom-scrollbar">
+          {countries.map((country, index) =>
+            index === (indacator === "from" ? to : from) ? null : (
+              <Button
+                key={index}
+                onClick={() => {
+                  updateData({ [indacator]: index });
+                  setOpen(false);
+                }}
+                className={cn(
+                  "flex flex-col h-11 gap-1 items-stretch rounded-md hover:bg-primary-500 hover:text-white",
+                  { "border-2 border-primary-500": data === index }
+                )}
+              >
+                <div className="flex flex-row gap-2 items-center">
+                  <CountryFlag
+                    rounded
+                    code={country.code}
+                    className="h-7 w-7"
+                  />
+                  <p className="text-sm font-medium">{country.name}</p>
+                </div>
+              </Button>
+            )
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};

@@ -1,8 +1,10 @@
 import { getBanks } from '@/lib/api';
+import { useDataStore } from '@/store/Global';
 import { Input } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 
-const RecipientBank = ({goNext,setBank}) => {
+const RecipientBank = ({goNext,editMode}) => {
+  const {data,updateData,setBank}=useDataStore()
  const [searchTerm, setSearchTerm] = useState(''); // State for search input
   const [banks, setBanks] = useState([]); // List of banks
 
@@ -12,8 +14,13 @@ const RecipientBank = ({goNext,setBank}) => {
   );
 
   const selectBank=(bank)=>{
-  setBank(bank)
-  goNext()
+    console.log('selected bank:',bank);
+    // console.log({recipient_accountDetails:{...data.recipient_accountDetails,bank_name:bank.name}});
+    updateData({recipient_accountDetails:{...data.recipient_accountDetails,bank_name:bank.name}})
+    setBank(bank)
+    if (!editMode) {
+    goNext()   
+  }
   }
 
   
@@ -27,11 +34,13 @@ const RecipientBank = ({goNext,setBank}) => {
   }, []);
 
   return (
-   <div className="min-h-screen flex flex-col p-8 bg-white">
+   <div className={`${!editMode&&'min-h-screen'}  flex flex-col p-8 bg-white`}>
+    {!editMode &&
    <div className='mb-4'>
       <h1 className="text-2xl font-bold mb-2">Select Recipient&apos;s Bank</h1>
       <p>Recipient pays no fee</p>
    </div>
+    }
       <div className="w-full">
         {/* Search Input */}
         <Input
@@ -44,7 +53,7 @@ const RecipientBank = ({goNext,setBank}) => {
         />
 
         {/* List of Banks */}
-        <div className="flex flex-col gap-4 h-[40rem] overflow-hidden overflow-y-auto">
+        <div className="flex flex-col gap-4 h-[30rem] overflow-hidden overflow-y-auto">
           {filteredBanks.length > 0 ? (
             filteredBanks.map((bank, index) => (
               <div

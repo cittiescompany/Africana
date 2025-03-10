@@ -5,7 +5,8 @@ import discover from '../../../../../../public/assets/discover.webp'
 import visa from '../../../../../../public/assets/visa.jpg'
 import mastercard from '../../../../../../public/assets/mastercard.png'
 import amex from '../../../../../../public/assets/amex.avif'
-import credit_card from '../../../../../../public/assets/credit_card.png'
+import credit_card from '../../../../../../public/assets/credit_card_2.png'
+import { useDataStore } from "@/store/Global";
 
 export default function CardDetails({ goNext }) {
  const [cardNumber, setCardNumber] = useState("");
@@ -15,6 +16,8 @@ const [expiration, setExpiration] = useState(""); // Stores MMYY
   const [hiddenCvv, setHiddenCvv] = useState(""); // Stores the masked CVV
   const cvvTimeoutRef = useRef(null);
   const expirationRef = useRef(null);
+
+  const {updateData}=useDataStore()
 
   // Function to detect card type
   const detectCardType = (cardNumber) => {
@@ -60,24 +63,36 @@ const handleCardInput = (e) => {
     discover,
   };
 
-// Function to handle expiration date input
   const handleExpirationChange = (e) => {
     let value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
     let formattedValue = "MM / YY";
     let cursorPosition = e.target.selectionStart;
-
+  
     if (value.length > 4) value = value.slice(0, 4); // Max 4 digits
-
-    // Replace 'MM / YY' placeholders with actual input
-    for (let i = 0, j = 0; i < formattedValue.length && j < value.length; i++) {
-      if (formattedValue[i] === "M" || formattedValue[i] === "Y") {
-        formattedValue = formattedValue.substring(0, i) + value[j] + formattedValue.substring(i + 1);
-        j++;
+  
+    // Extract month and year
+    let month = value.slice(0, 2);
+    let year = value.slice(2, 4);
+  
+    // Ensure month is valid (01-12)
+    if (month.length === 2) {
+      let numericMonth = parseInt(month, 10);
+      if (numericMonth < 1 || numericMonth > 12) {
+        month = "12"; // Force it to 12 if out of range
       }
     }
-
-    setExpiration(formattedValue);
-
+  
+    // Ensure year is not in the past
+    const currentYear = new Date().getFullYear() % 100; // Get last two digits of current year
+    if (year.length === 2 && parseInt(year, 10) < currentYear) {
+      year = currentYear.toString(); // Prevent past year input
+    }
+  
+    // Reconstruct expiration format
+    let newValue = `${month} / ${year}`;
+  
+    setExpiration(newValue);
+  
     // Move cursor correctly
     setTimeout(() => {
       if (cursorPosition === 2) {
@@ -87,53 +102,65 @@ const handleCardInput = (e) => {
       }
     }, 0);
   };
-
-const handleExpirationKeyDown = (e) => {
-  let cursorPosition = expirationRef.current.selectionStart;
-
-  if (e.key === "Backspace") {
-    e.preventDefault(); // Prevent default behavior
-
-    let value = expiration.replace(/\D/g, ""); // Get only numbers
-
-    if (value.length === 0) return; // **Stop Backspace Rotation When Empty**
-
-    let formattedValue = "MM / YY";
-
-    if (cursorPosition === 5) {
-      expirationRef.current.setSelectionRange(2, 2); // Move before `/`
-      return;
-    }
-
-    if (cursorPosition === 3) {
-      expirationRef.current.setSelectionRange(1, 1); // Move to MM section
-      return;
-    }
-
-    if (cursorPosition > 0) {
-      value = value.substring(0, value.length - 1); // Remove last digit
-    }
-
-    // Reconstruct expiration format
-    for (let i = 0, j = 0; i < formattedValue.length && j < value.length; i++) {
-      if (formattedValue[i] === "M" || formattedValue[i] === "Y") {
-        formattedValue = formattedValue.substring(0, i) + value[j] + formattedValue.substring(i + 1);
-        j++;
+  
+  const handleExpirationKeyDown = (e) => {
+    let cursorPosition = expirationRef.current.selectionStart;
+  
+    if (e.key === "Backspace") {
+      e.preventDefault(); // Prevent default behavior
+  
+      let value = expiration.replace(/\D/g, ""); // Get only numbers
+  
+      if (value.length === 0) return; // Stop Backspace Rotation When Empty
+  
+      let formattedValue = "MM / YY";
+  
+      if (cursorPosition === 5) {
+        expirationRef.current.setSelectionRange(2, 2); // Move before `/`
+        return;
       }
-    }
-
-    setExpiration(formattedValue);
-
-    // **Stop Cursor from Moving When Fully Deleted**
-    setTimeout(() => {
-      if (value.length === 0) {
-        expirationRef.current.setSelectionRange(0, 0); // Lock at start
-      } else {
-        expirationRef.current.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+  
+      if (cursorPosition === 3) {
+        expirationRef.current.setSelectionRange(1, 1); // Move to MM section
+        return;
       }
-    }, 0);
-  }
-};
+  
+      if (cursorPosition > 0) {
+        value = value.substring(0, value.length - 1); // Remove last digit
+      }
+  
+      // Reconstruct expiration format
+      let month = value.slice(0, 2);
+      let year = value.slice(2, 4);
+  
+      // Ensure month is valid
+      if (month.length === 2) {
+        let numericMonth = parseInt(month, 10);
+        if (numericMonth < 1 || numericMonth > 12) {
+          month = "12"; // Correct invalid month
+        }
+      }
+  
+      // Ensure year is not in the past
+      const currentYear = new Date().getFullYear() % 100;
+      if (year.length === 2 && parseInt(year, 10) < currentYear) {
+        year = currentYear.toString();
+      }
+  
+      let newValue = `${month} / ${year}`;
+      setExpiration(newValue);
+  
+      // Stop Cursor from Moving When Fully Deleted
+      setTimeout(() => {
+        if (value.length === 0) {
+          expirationRef.current.setSelectionRange(0, 0); // Lock at start
+        } else {
+          expirationRef.current.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+        }
+      }, 0);
+    }
+  };
+  
 
 
 
@@ -164,6 +191,15 @@ const handleCvvKeyDown = (e) => {
   }
 };
 
+
+const handleNext=() => {
+  console.log("cardNumber:",cardNumber);
+  console.log("expiration:",expiration);
+  console.log("cvv:",cvv);
+  
+  updateData({card_details:{card_number:cardNumber, expiration:expiration, cvv:cvv}})
+  goNext()
+}
   
 
   return (
@@ -174,8 +210,8 @@ const handleCvvKeyDown = (e) => {
                 src={credit_card}
                 alt={cardType}
                 className="mx-auto mb-6 -mt-4"
-                width={200}
-                height={200}
+                width={250}
+                height={250}
               />
       </div>
       <div className="mb-4 bg-blue-100 p-4 rounded-md">
@@ -200,8 +236,8 @@ const handleCvvKeyDown = (e) => {
                 src={cardLogos[cardType]}
                 alt={cardType}
                 className=""
-                width={30}
-                height={30}
+                width={40}
+                height={35}
               />
             ) : (
               <svg
@@ -220,7 +256,6 @@ const handleCvvKeyDown = (e) => {
         </div>
         <div className="w-full">
           <Input
-            id="card-number"
             placeholder="xxxx xxxx xxxx xxxx"
             type="text"
             className="w-full"
@@ -234,13 +269,11 @@ const handleCvvKeyDown = (e) => {
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label
-            htmlFor="expiration-date"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
             Expiration date
           </label>
           <Input
-            id="expiration-date"
        placeholder="MM / YY"
           type="text"
           className="w-full"
@@ -253,17 +286,16 @@ const handleCvvKeyDown = (e) => {
         </div>
         <div>
           <label
-            htmlFor="security-code"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
             Security Code (CVV)
           </label>
           <Input
-            id="security-code"
           placeholder="CVV"
           type="text"
           maxLength={3} // Allow only 3 characters
           className="w-full"
+          onChange={handleCvvChange}
           />
         </div>
       </div>
@@ -326,7 +358,7 @@ const handleCvvKeyDown = (e) => {
       </Checkbox>
 
       <Button
-        onClick={goNext}
+        onClick={handleNext}
         color="primary"
         className="rounded-md text-medium"
       >

@@ -37,3 +37,28 @@ export const clearCookie=(name) =>{
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
+
+
+export const formatCurrency = (currencyCode,value) => {
+    return new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: currencyCode||"NGN",
+    }).format(+value);
+};
+
+
+export const debounce=(func, delay)=> {
+    let timeout;
+   
+     const debounced = (...args) => {
+       clearTimeout(timeout);
+       timeout = setTimeout(() => func(...args), delay);
+     };
+   
+     // Add a cancel method to clear the timeout
+     debounced.cancel = () => {
+       clearTimeout(timeout);
+     };
+   
+     return debounced;
+   }

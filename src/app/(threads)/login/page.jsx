@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -32,11 +33,12 @@ const page = () => {
     }
   };
   return (
-    <section className="flex py-11 flex-col items-center  w-full h-screen">
-      <main className=" w-5/6 sm:w-3/4 md:w-1/2 lg:w-1/3 ">
-        <h1 className="text-center text-5xl">Africana</h1>
+    <section className="flex py-11 flex-col justify-center items-center px-10 w-full">
+      {/* <main className=" w-5/6 sm:w-3/4 md:w-1/2 lg:w-1/3 "> */}
+      <main className="w-full md:w-3/4">
+        {/* <h1 className="text-center text-5xl">Africana</h1> */}
         <form onSubmit={handleSubmit(submit)} className="mt-16">
-          <h3 className="opacity-60 text-blue-800 font-bold text-2xl">
+          <h3 className="opacity-60 font-[Inter] font-bold text-blue-800 text-2xl my-4 text-center">
             Welcome back
           </h3>
           <div className="mt-4 flex flex-col ">
@@ -44,7 +46,7 @@ const page = () => {
               Email Address
             </label>
             <input
-              className="bg-[#FFF] px-4 py-3 outline-none w-full text-[#000000] border-2 transition-colors duration-100 border-solid focus:border-[#596A95] border-[#2B3040]"
+              className="bg-[#FFF] px-4 py-3 outline-none w-full text-[#000000] border transition-colors duration-100 focus:border-[#596A95] border-gray-300 rounded-lg"
               name="email"
               {...register("email", {
                 required: "Email Address is required",
@@ -68,7 +70,7 @@ const page = () => {
               Password
             </label>
             <input
-              className="bg-[#FFF] px-4 py-3 outline-none  w-full text-[#000000] border-2 transition-colors duration-100 border-solid focus:border-[#596A95] border-[#2B3040]"
+              className="bg-[#FFF] px-4 py-3 outline-none w-full text-[#000000] border transition-colors duration-100 focus:border-[#596A95] border-gray-300 rounded-lg"
               name="text"
               {...register("password", {
                 required: "Password is required",
@@ -90,18 +92,41 @@ const page = () => {
           <button
             type="submit"
             disabled={isPending}
-            className={`w-full h-[50px]  text-[1.1rem] mt-10  bg-[#2753c2] text-white transition-all duration-150 ease-in-out ${ isPending?'opacity-20':''}`}
+            className={`w-full h-[50px]  text-[1.1rem] mt-10  bg-[#2753c2] text-white rounded-lg transition-all duration-150 ease-in-out ${ isPending?'opacity-20':''}`}
           >
             Login
           </button>
         </form>
-        <div className="mt-6 text-center">OR</div>
-        <button className="w-full h-[50px]  border-2 border-gray-400 text-[1.1rem] mt-10  bg-[#FFF] text-[#2753c2] hover:bg-[#2753c2] hover:text-white transition-all duration-150 ease-in-out">
-          Continue with Google
-        </button>
-        <button className="w-full h-[50px]  border-2 border-gray-400 text-[1.1rem] mt-6  bg-[#FFF] text-[#2753c2] hover:bg-[#2753c2] hover:text-white transition-all duration-150 ease-in-out">
-          Continue with Apple
-        </button>
+        <div className="flex items-center gap-4 my-8">
+<hr className="w-full bg-gray-400 h-0.5" />
+        <span>OR</span>
+<hr className="w-full bg-gray-400 h-0.5" />
+        </div>
+        <div className="flex flex-col gap-4 my-4">
+        <button
+            type="button"
+            className="w-full flex items-center justify-center gap-2 bg-white shadow p-4 rounded-lg text-gray-600 hover:bg-gray-50 focus:outline-none"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png"
+              alt="Google logo"
+              className="w-5 h-5"
+            />
+            Continue with Google
+          </button>
+        <button
+            type="button"
+            className="w-full flex items-center justify-center gap-2 text-white shadow p-4 rounded-lg bg-gray-900 hover:bg-gray-800 focus:outline-none"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Apple_Store_logo.svg/2048px-Apple_Store_logo.svg.png"
+              alt="Apple logo"
+              className="w-6 h-6"
+            />
+            Continue with Apple
+          </button>
+        
+        </div>
         <div className="flex mb-20 mt-10 gap-2 opacity-75 justify-center">
           <p>Create an acount </p>
           <Link href="/register" className="underline text-blue-500">
