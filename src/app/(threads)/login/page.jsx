@@ -7,11 +7,14 @@ import { AxiosError } from "axios";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
+import { LiaSpinnerSolid } from "react-icons/lia";
+import { useRouter } from "next/navigation";
 
-const page = () => {
+const Page = () => {
   const { mutateAsync: login, isPending } = useLoginMutation();
   const toast = useToast();
-  const {authenticate} = useAuth();
+  const router = useRouter();
+  const { authenticate } = useAuth();
   const {
     handleSubmit,
     register,
@@ -23,11 +26,17 @@ const page = () => {
   const submit = async (values) => {
     try {
       const res = await login(values);
-      authenticate({user:res.data.user,token:res.data.token});
-      toast.success({ message: "Successfully logged in" });
+      sessionStorage.setItem("email", values.email);
+      router.push("/verification/?type=login");
     } catch (e) {
       if (e instanceof AxiosError) {
-        return toast.error({ message:e.response?.data?.message ?? e.response?.data ?? "Error signing in",});
+        const message =
+          e.response?.data?.message ?? e.response?.data ?? "Error signing in";
+        if (message === "Please verify your account") {
+          sessionStorage.setItem("email", values.email);
+          router.push("/verification/?type=register");
+        }
+        return toast.error({ message });
       }
       toast.error({ message: "Error signing in" });
     }
@@ -92,18 +101,27 @@ const page = () => {
           <button
             type="submit"
             disabled={isPending}
-            className={`w-full h-[50px]  text-[1.1rem] mt-10  bg-[#2753c2] text-white rounded-lg transition-all duration-150 ease-in-out ${ isPending?'opacity-20':''}`}
+            className={`w-full h-[50px]  text-[1.1rem] mt-10  bg-[#2753c2] text-white rounded-lg transition-all duration-150 ease-in-out ${
+              isPending ? "opacity-20" : ""
+            }`}
           >
-            Login
+            {isPending ? (
+              <span className="flex gap-2 items-center justify-center">
+                <LiaSpinnerSolid size={20} className="animate-spin" />
+                Loading...
+              </span>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
         <div className="flex items-center gap-4 my-8">
-<hr className="w-full bg-gray-400 h-0.5" />
-        <span>OR</span>
-<hr className="w-full bg-gray-400 h-0.5" />
+          <hr className="w-full bg-gray-400 h-0.5" />
+          <span>OR</span>
+          <hr className="w-full bg-gray-400 h-0.5" />
         </div>
         <div className="flex flex-col gap-4 my-4">
-        <button
+          <button
             type="button"
             className="w-full flex items-center justify-center gap-2 bg-white shadow p-4 rounded-lg text-gray-600 hover:bg-gray-50 focus:outline-none"
           >
@@ -114,7 +132,7 @@ const page = () => {
             />
             Continue with Google
           </button>
-        <button
+          <button
             type="button"
             className="w-full flex items-center justify-center gap-2 text-white shadow p-4 rounded-lg bg-gray-900 hover:bg-gray-800 focus:outline-none"
           >
@@ -125,12 +143,11 @@ const page = () => {
             />
             Continue with Apple
           </button>
-        
         </div>
         <div className="flex mb-20 mt-10 gap-2 opacity-75 justify-center">
           <p>Create an acount </p>
           <Link href="/register" className="underline text-blue-500">
-             Sign up
+            Sign up
           </Link>
         </div>
       </main>
@@ -138,4 +155,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

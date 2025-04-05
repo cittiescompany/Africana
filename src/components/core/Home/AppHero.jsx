@@ -335,8 +335,9 @@ const NinthHero = () => {
 
 export const Footer = () => {
   return (
-    <section className="mt-5  bg-[#2C415A] p-10 grid grid-cols-1 justify-center gap-10 md:grid-cols-2  lg:grid-cols-4 md:justify-around  rounded-xl ">
-      <main className="mx-auto">
+    <section className="mt-5  bg-[#2C415A] p-10 rounded-t-xl ">
+   <div className="lg:max-w-[80rem] mx-auto grid grid-cols-2 justify-center gap-10 md:grid-cols-3 lg:grid-cols-4">
+   <div>
         <h2 className="text-white text-3xl">Citties</h2>
         <div className="flex flex-col">
           {[
@@ -351,8 +352,8 @@ export const Footer = () => {
             </a>
           ))}
         </div>
-      </main>
-      <main className="mx-auto">
+      </div>
+      <div>
         <h2 className="text-white text-3xl">Company</h2>
         <div className="flex flex-col">
           {"About-Blog-Newsroom-Press-Careers-Investors-Become an affiliate"
@@ -363,8 +364,8 @@ export const Footer = () => {
               </a>
             ))}
         </div>
-      </main>
-      <main className="mx-auto">
+      </div>
+      <div>
         <h2 className="text-white text-3xl">Product</h2>
         <div className="flex flex-col">
           {[
@@ -382,8 +383,8 @@ export const Footer = () => {
             </a>
           ))}
         </div>
-      </main>
-      <main className="mx-auto">
+      </div>
+      <div>
         <h2 className="text-white text-3xl">Support</h2>
         <div className="flex flex-col">
           {["Help", "File a complaint"].map((item, index) => (
@@ -392,7 +393,8 @@ export const Footer = () => {
             </a>
           ))}
         </div>
-      </main>
+      </div>
+   </div>
     </section>
   );
 };

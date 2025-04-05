@@ -44,11 +44,11 @@ const Layout = ({ children }) => {
             </div>
             <div className="hidden absolute inset-0 z-[99] md:flex items-center justify-center w-full">
             <p className="text-2xl text-center !leading-snug text-slate-300 md:text-[2.9rem] font-extrabold">
-             Africana Cross Border Management
+             Moniclan Cross Border Management
             </p>
             </div>
             <p className="md:hidden text-2xl text-center !leading-snug text-slate-300 md:text-[2.9rem] font-extrabold">
-             Africana Cross Border Management
+            Moniclan Cross Border Management
             </p>
           </div>
         </div>

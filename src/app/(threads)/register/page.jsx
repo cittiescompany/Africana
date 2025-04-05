@@ -6,13 +6,15 @@ import { useSignupMutation } from "@/api/auth";
 import { AxiosError } from "axios";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
 import { user } from "@nextui-org/react";
+import { LiaSpinnerSolid } from "react-icons/lia";
+import { useRouter } from "next/navigation";
 
-const page = () => {
+const Page = () => {
   const { mutateAsync: signup, isPending } = useSignupMutation();
   const toast = useToast();
-  const {authenticate} = useAuth();
+
+  const router=useRouter()
   const {
     handleSubmit,
     register,
@@ -25,15 +27,14 @@ const page = () => {
   const submit = async (values) => {
     try {
       delete values.confirmPassword;
-      const res = await signup(values);
-      authenticate({user:res.data.user,token:res.data.token});
+      const {data}= await signup({...values,role:'user'});
+      sessionStorage.setItem('email',data.user.email)
+      router.push('/verification/?type=register');
       toast.success({ message: "Successfully signed up" });
     } catch (e) {
       if (e instanceof AxiosError) {
-        return toast.error({
-          message:
-            e.response?.data?.message ?? e.response?.data ?? "Error signing up",
-        });
+        const message= e.response?.data?.message ?? e.response?.data ?? "Error signing up"
+        return toast.error({message});
       }
       toast.error({ message: "Error signing up" });
     }
@@ -115,6 +116,31 @@ const page = () => {
             )}
           </div>
           <div className="flex flex-col">
+  <label htmlFor="phone" className="opacity-70">
+    Phone number
+  </label>
+  <input
+    id="phone"
+    className="bg-[#FFF] px-4 py-3 outline-none w-full text-[#000000] border transition-colors duration-100 focus:border-[#596A95] border-gray-300 rounded-lg"
+    name="phone"
+    placeholder="Phone number"
+    type="tel"
+    disabled={isPending}
+    {...register("phone", {
+      required: "Phone number is required",
+      pattern: {
+        value: /^0\d{10}$/,
+        message: "Enter a valid 11-digit Nigerian phone number starting with 0",
+      },
+    })}
+  />
+  {errors?.phone?.message && (
+    <p className="text-red-500 text-base italic">{errors.phone.message}</p>
+  )}
+</div>
+
+     <div className="flex gap-6 flex-col sm:flex-row">
+     <div className="flex flex-col w-full">
             <label htmlFor="" className="opacity-70">
               Password
             </label>
@@ -138,7 +164,7 @@ const page = () => {
               </p>
             )}
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full">
             <label htmlFor="" className="opacity-70">
               Confirm Password
             </label>
@@ -164,6 +190,7 @@ const page = () => {
               </p>
             )}
           </div>
+     </div>
          </div>
           <p className="mt-10 text-[1rem] opacity-60">
             By using Citties, you agree to our E-sign Disclosure and Consent
@@ -175,7 +202,7 @@ const page = () => {
             type="submit"
             className={`w-full h-[50px]  text-[1.1rem] mt-10  bg-[#2753c2] text-white rounded-lg transition-all duration-150 ease-in-out ${ isPending?'opacity-20':''}`}
           >
-            Sign Up
+            {isPending? <span className="flex gap-2 items-center justify-center"><LiaSpinnerSolid size={20} className="animate-spin" />Loading...</span> :'Sign Up'} 
           </button>
         </form>
         <div className="flex items-center gap-4 my-8">
@@ -220,4 +247,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

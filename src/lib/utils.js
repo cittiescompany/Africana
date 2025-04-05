@@ -1,5 +1,6 @@
 import { twMerge } from 'tailwind-merge';
 import { clsx } from 'clsx';
+import toast from 'react-hot-toast';
 
 export const setCookie = (name, value, days = 7) => {
     // const expires = days ? `; expires=${new Date(new Date().getTime() + days * 24 * 60 * 60 * 1000).toUTCString()}` : '';
@@ -62,3 +63,24 @@ export const debounce=(func, delay)=> {
    
      return debounced;
    }
+
+   export const notifier = ({ message, type }) => {
+    const types = ['success', 'error'];
+  
+    if (!types.includes(type)) {
+        console.warn(`Unsupported toast type: ${type}`);
+        return;
+    }
+  
+    switch (type) {
+        case 'success':
+            toast.success(message);
+            break;
+        case 'error':
+            toast.error(message);
+            break;
+        default:
+            toast(message); // Fallback for a generic message
+            break;
+    }
+  };

@@ -12,6 +12,8 @@ import {
   Button,
 } from "@nextui-org/react";
 import { useAuth } from "@/hooks/use-auth";
+import SimpleDropdown from "@/components/ui/SimpleDropdown";
+import { TbChevronDown, TbLogout, TbUsers } from "react-icons/tb";
 
 export const AcmeLogo = () => {
   return (
@@ -27,60 +29,64 @@ export const AcmeLogo = () => {
 };
 
 export default function Nav() {
-  const { user } = useAuth();
+  const { user, logOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const menuItems = [
       {
         name:"Send Money",
-        href:"/home/send-money"
+        href:"/home/transfer"
       },
       {
         name:"Payment Hub(USD)",
-        href:"payment-hub"
+        href:"/home/hub"
       },
       {
-        name:"Invest",
-        href:"/home/invest"
+        name:"Marketplace",
+        href:"/home/marketplace"
+      },
+      {
+        name:"Express Delivery",
+        href:"/home/express"
       },
   ];
 
   return (
     <Navbar isBordered className="h-[60px] bg-white" isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
-      <NavbarContent className="sm:hidden" justify="start">
-        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
-      </NavbarContent>
-
-      <NavbarContent className="sm:hidden pr-3" justify="center">
+        <NavbarContent className="pr-3" justify="start">
+      <NavbarMenuToggle className="sm:hidden" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
         <NavbarBrand>
           <AcmeLogo />
-          <p className="font-bold text-inherit">AFRICANA</p>
+          <p className="font-bold text-inherit">MONICLAN</p>
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent className="hidden w-[650px] sm:flex gap-4" justify="center">
-        <NavbarBrand>
-          <AcmeLogo />
-          <p className="font-bold text-inherit">Africana</p>
-        </NavbarBrand>
-        <div className="flex  w-[400px] justify-between">
+      <NavbarContent justify="end">
+        <div className="flex gap-10">
           {
             menuItems.map((item, index) => (
-              <NavbarItem key={`${item.name}-${index}`}>
+              <NavbarItem key={`${item.name}-${index}`} className="hidden lg:block">
                 <Link className="text-blue-700" href={item.href}>
                   {item.name}
                 </Link>
               </NavbarItem>
             ))
           }
-        </div>
-      </NavbarContent>
-
-      <NavbarContent justify="end">
-        <NavbarItem className=" lg:flex">
-         <b>Hi {user?.firstName} {user?.lastName}</b>
+        <NavbarItem>
+         <SimpleDropdown
+          trigger={
+            <div className="flex items-center">
+             <b>Hi {user?.firstName} {user?.lastName}</b>
+              <TbChevronDown size="18" className="ml-3"/>
+            </div>
+          }
+          items={[
+            {text: 'Profile', icon: <TbUsers size="18"/>},
+            {text: 'Logout', icon: <TbLogout size="18"/>, onClick: logOut},
+          ]}
+        />
         </NavbarItem>
-       
+        </div>      
       </NavbarContent>
 
       <NavbarMenu className="mt-5">

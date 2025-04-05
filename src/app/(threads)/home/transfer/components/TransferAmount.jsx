@@ -1,6 +1,6 @@
 'use client'
 import React,{useState,useEffect} from 'react'
-import { Button, Progress, Input, Popover, PopoverTrigger, PopoverContent, Select, SelectItem } from "@nextui-org/react";
+import { Button, Progress, Input, Popover, PopoverTrigger, PopoverContent, Select, SelectItem, Spinner } from "@nextui-org/react";
 import countries from "@/lib/countries";
 import CountryFlag from "@/components/ui/CountryFlag";
 import CurrencyConverter from './CurrencyConverter'
@@ -11,6 +11,7 @@ import axios from 'axios';
 
 
 const TransferAmount = ({goNext,editMode}) => {
+   const [loading, setloading] = useState(false)
   const {data,updateData}=useDataStore()
   const [to, from] = useTransaction(
     useShallow((state) => [state.data.to, state.data.from])
@@ -96,6 +97,7 @@ const handleSelect = (e)=>{
 const handleCalculate = async (amount) => {
   console.log('from:',countries[from],'to:',countries[to])
   try {
+    setloading(true)
     const response = await axios.get("https://dashboard-backend-hazel-five.vercel.app/api/get-rate", {
       params: { fromCountryCode: countries[from]?.code, toCountryCode: countries[to]?.code },
     });
@@ -104,11 +106,14 @@ const handleCalculate = async (amount) => {
     if (response.data) {
       const exchangeRate = response.data.rate;
       const calculatedAmount = parseFloat(amount) * exchangeRate;
+      setloading(false)
       return calculatedAmount.toFixed(2);
     } else {
+      setloading(false)
       console.log("Exchange rate not found");
     }
   } catch (error) {
+    setloading(false)
     console.log("Error fetching exchange rate");
   }
 };
@@ -203,10 +208,14 @@ const handleCalculate = async (amount) => {
       </div>
       <div className="bg-white p-6  my-3 rounded-sm">
         <p className="text-lg">Current exchange rate</p>
+        {loading? <div className="h-[3rem] flex items-center justify-center">
+            <Spinner color="primary" />
+            </div>:
         <strong className=" text-green-500">
           {/* {countries[from]?.currencyCode} 1 = {fetchExchangeRate(1)} {countries[to]?.currencyCode}{" "} */}
           {formatCurrency(countries[from]?.currencyCode,1)} = {formatCurrency(countries[to]?.currencyCode,data.exchangeRate)}
         </strong>
+            }
       </div>
       <hr className="border-2 w-[98%] block mx-auto" />
       <button className="bg-gray-300  p-4 w-[98%] rounded-sm mt-3 mx-auto block ">

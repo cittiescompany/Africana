@@ -6,6 +6,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Spinner,
 } from "@nextui-org/react";
 import CountryFlag from "@/components/ui/CountryFlag";
 import useTransaction, { useDataStore } from "@/store/Global";
@@ -36,7 +37,8 @@ const data = [
     text: "Your information is always confidential and your funds are protected.",
   },
 ];
-const page = () => {
+const Page = () => {
+  const [loading, setloading] = useState(false)
   const {data:storeData,updateData:updateStoreData}=useDataStore()
   const router = useRouter();
   const [to, from] = useTransaction(
@@ -73,6 +75,7 @@ const page = () => {
   
     const handleCalculate = async (amount) => {
       try {
+        setloading(true)
         const response = await axios.get("https://dashboard-backend-hazel-five.vercel.app/api/get-rate", {
           params: { fromCountryCode: countries[from]?.code, toCountryCode: countries[to]?.code },
         });
@@ -80,12 +83,15 @@ const page = () => {
         if (response.data) {
           const exchangeRate = response.data.rate;
           const calculatedAmount = parseFloat(amount) * exchangeRate;
+          setloading(false)
           return calculatedAmount.toFixed(2);
         } else {
+          setloading(false)
           console.log("Exchange rate not found");
         }
       } catch (error) {
         console.log("Error fetching exchange rate");
+        setloading(false)
       }
     };
     return (
@@ -101,8 +107,9 @@ const page = () => {
         </Button>
       </div>
       <section className="container mx-auto my-6">
-        <main className="lg:grid flex grid-cols-1 lg:grid-cols-2 gap-4 flex-col-reverse">
-          <div className="flex flex-col gap-8 items-center lg:items-end">
+        {/* <main className="lg:grid flex grid-cols-1 lg:grid-cols-2 gap-4 flex-col-reverse"> */}
+        <main className="flex flex-col-reverse gap-4">
+          <div className="flex flex-col md:grid grid-cols-2 gap-8 items-center">
             {data.map((item, index) => (
               <div className="card  w-[300px] text-center  " key={index}>
                 <Image
@@ -125,6 +132,9 @@ const page = () => {
           </div>
           <div className="flex flex-col md:px-10 lg:px-28">
             <strong className="text-lg">Exchange rate</strong>
+           {loading? <div className="border rounded-xl h-[10rem] flex items-center justify-center">
+            <Spinner color="primary" />
+            </div>:
             <div className="border rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <p className="">Sending to {countries[to]?.name}</p>
@@ -145,6 +155,7 @@ const page = () => {
                 </button>
               </div>
             </div>
+            }
           </div>
         </main>
       </section>
@@ -152,7 +163,7 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
 const SelectCountries = ({ indacator }) => {
   const [open, setOpen] = useState(false);
   const [to, from, updateData] = useTransaction(

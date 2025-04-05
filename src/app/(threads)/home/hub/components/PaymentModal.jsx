@@ -9,35 +9,35 @@ import { IoCheckmark, IoCopyOutline } from 'react-icons/io5';
 import { PiSpinnerThin } from "react-icons/pi";
 
 
-const PaymentModal = ({ isOpen, onClose,}) => {
+const PaymentModal = ({ isOpen, onClose,amount,service}) => {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [isVerifying, setIsVerifying] = useState(false)
     const [isCopied, setIsCopied] = useState(false);
-    const {data,setWalletBanace}=useInvestmentStore()
+    // const {data,setWalletBanace}=useInvestmentStore()
 
 
-    useEffect(() => {
-        if (!isOpen || !data?.paymentMethod || data.paymentAmount === undefined) return; // Prevent running with missing values
+    // useEffect(() => {
+    //     if (!isOpen || !data?.paymentMethod || data.paymentAmount === undefined) return; // Prevent running with missing values
     
-        setLoading(true); // Ensure loading starts when modal opens
+    //     setLoading(true); // Ensure loading starts when modal opens
     
-        const timer = setTimeout(() => {
-            if (data.paymentMethod === 'wallet') {
-                if (data.wallet_balance >= data.paymentAmount) {  // Ensure sufficient balance
-                    const newAmount = data.wallet_balance - data.paymentAmount;
-                    setWalletBanace(newAmount);
-                    onClose();
-                    router.push('/home/invest');
-                } else {
-                    console.error("Insufficient balance!");  // Handle insufficient balance properly
-                }
-            }
-            setLoading(false); // Only stop loading after processing
-        }, 6000);
+    //     const timer = setTimeout(() => {
+    //         if (data.paymentMethod === 'wallet') {
+    //             if (data.wallet_balance >= data.paymentAmount) {  // Ensure sufficient balance
+    //                 const newAmount = data.wallet_balance - data.paymentAmount;
+    //                 setWalletBanace(newAmount);
+    //                 onClose();
+    //                 router.push('/home/invest');
+    //             } else {
+    //                 console.error("Insufficient balance!");  // Handle insufficient balance properly
+    //             }
+    //         }
+    //         setLoading(false); // Only stop loading after processing
+    //     }, 6000);
     
-        return () => clearTimeout(timer); // Clean up timeout on unmount
-    }, [isOpen, data]); // Depend on isOpen and data to restart logic when modal opens
+    //     return () => clearTimeout(timer); // Clean up timeout on unmount
+    // }, [isOpen, data]); // Depend on isOpen and data to restart logic when modal opens
     
 
 
@@ -58,7 +58,7 @@ const PaymentModal = ({ isOpen, onClose,}) => {
         setTimeout(()=>{
             setIsVerifying(false)
                 onClose()
-                router.push('/home/invest')
+                // router.push('/home/invest')
         }, 2000)
     }
   return (
@@ -72,8 +72,6 @@ const PaymentModal = ({ isOpen, onClose,}) => {
                <div className='absolute inset-0 z-99 bg-white/80 flex items-center justify-center'><PiSpinnerThin size={40} className='animate-spin' /></div>
               
             }
-             
-                <h2 className="text-xl md:text-2xl italic font-semibold text-gray-800">Account Details</h2>
 
 {/* Payment Information */}
 <div className="mt-4">
@@ -81,7 +79,7 @@ const PaymentModal = ({ isOpen, onClose,}) => {
   <div className="mt-2 bg-gray-100 p-4 rounded-lg">
     <div className="flex justify-between gap-6 items-center mb-2">
       <span className="text-sm text-gray-500">Account Number </span>
-      <span className="md:text-lg font-bold text-gray-900 flex items-center gap-2">
+      <span className="font-semibold text-gray-900 flex items-center gap-2">
         0216662574
           {isCopied ? (
                     <IoCheckmark color="gray" size={18} className='cursor-pointer' />
@@ -92,13 +90,13 @@ const PaymentModal = ({ isOpen, onClose,}) => {
     </div>
     <div className="flex justify-between gap-6 items-center">
       <span className="text-sm text-gray-500">Bank Name </span>
-      <span className="md:text-lg font-bold text-gray-900">
+      <span className="font-semibold text-gray-900">
         GT Bank
       </span>
     </div>
     <div className="flex justify-between gap-6 items-center">
       <span className="text-sm text-gray-500">Account Name </span>
-      <span className="md:text-lg font-bold text-gray-900">
+      <span className="font-semibold text-gray-900">
         Stephen Oluwagbemiga
       </span>
     </div>
@@ -106,18 +104,18 @@ const PaymentModal = ({ isOpen, onClose,}) => {
 </div>
 
    <div className="mt-4">
-  <h3 className="text-lg font-medium text-gray-700">service</h3>
+  {/* <h3 className="text-lg font-medium text-gray-700">service</h3> */}
   <div className=" bg-gray-50 p-4 rounded-lg space-y-2">
     <div className="flex justify-between gap-6 items-center">
-      <span className="text-sm text-gray-500">Number of Share</span>
+      <span className="text-sm text-gray-500">Service</span>
       <span className="text-sm text-gray-800 line-clamp-1">
-        {data.noOfShares}
+        {service}
       </span>
     </div>
       <div className="flex justify-between gap-6 items-center">
       <span className="text-sm text-gray-500">Amount </span>
       <span className="font-medium text-gray-800 line-clamp-1">
-        {formatCurrency('NGN',data.paymentAmount)}
+        {formatCurrency('NGN',amount)}
       </span>
     </div>
   </div>

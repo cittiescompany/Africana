@@ -71,10 +71,10 @@ const Transfer = () => {
   const progressPercentage = (currentStep / (totalSteps - 1)) * 100;
 
   return (
-    <section className="container mx-auto my-4">
-      <div className="border-2 border-gray-200 w-full rounded-xl shadow-sm py-10 ">
-        <button onClick={goBack} className="flex items-center gap-1 ms-10 p-2 rounded bg-blue-400 hover:bg-blue-500 text-white shadow"><IoMdArrowBack size={20} /> Back</button>
-        <div className="w-full md:w-[45%] mx-auto">
+    <section className="my-4">
+      <div className="px-6 pt-4">
+        <button onClick={goBack} className="flex items-center gap-1 ms-10 p-2 my-4 rounded bg-blue-400 hover:bg-blue-500 text-white shadow"><IoMdArrowBack size={20} /> Back</button>
+        <div className="w-full">
       <Progress size="sm" color="primary" isStriped value={progressPercentage} />
           {/* {steps[currentStep]} */}
             <Swiper

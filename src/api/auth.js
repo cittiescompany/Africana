@@ -8,6 +8,20 @@ export const useSignupMutation=()=>{
     }
   })
 }
+export const useVerifyMutation=()=>{
+  return useMutation({
+    mutationFn:(body)=>{
+      return http.post('/auth/verify',body)
+    }
+  })
+}
+export const useResenOtpMutation=()=>{
+  return useMutation({
+    mutationFn:(body)=>{
+      return http.post('/auth/verify/resend',body)
+    }
+  })
+}
 export const useLoginMutation=()=>{
   return useMutation({
     mutationFn:(body)=>{
